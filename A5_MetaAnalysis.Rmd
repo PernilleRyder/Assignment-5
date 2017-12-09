@@ -49,10 +49,67 @@ forest(res_sd)
 
 2. Do the results match your own analysis from Assignment 3? If you add your results to the meta-analysis, do the estimated effect sizes change? Report the new estimates and the new forest plots.
 ```{r}
+#data from assignment 3 part 2
+A3 <- read_csv("~/Desktop/Experimental methods 3/A3-P2/final_rqa.csv")
 
+#creating new dataframes. A3 controls and A3 schizo
+controls = A3[A3$diagnosis =="control", ]
+schizo = A3[A3$diagnosis =="schizophrenia", ]
+
+PitchMeanControls = mean(controls$mean)
+PitchMeanSchizo = mean(schizo$mean)
+
+PitchSDControls = mean(controls$stdDev)
+PitchSDSchizo = mean(schizo$stdDev)
+
+SampleSizeContros = length(unique(controls$participant))
+SampleSizeSchizo =  length(unique(schizo$participant))
+  
+PitchMeanControlsSD = sd(controls$mean) 
+PitchMeanSchizoSD = sd(schizo$mean)
+
+PitchSDControlsSD = sd(controls$stdDev) 
+PitchSDSchizoSD = sd(schizo$stdDev)
+
+Article = "Assignment 3"
+
+Year = "2017"
+
+
+df_A3 = data.frame(Article, Year, SampleSizeSchizo ,SampleSizeContros, PitchMeanControls, PitchMeanControlsSD, PitchMeanSchizo,PitchMeanSchizoSD, PitchSDControls, PitchSDControlsSD, PitchSDSchizo, PitchSDSchizoSD)
+
+data2 = rbind(data,df_A3)
+
+#If you add your results to the meta-analysis, do the estimated effect sizes change?
+PitchRange2=escalc('SMD', n1i=SampleSizeSchizo, n2i=SampleSizeContros, m1i=PitchMeanSchizo, m2i=PitchMeanControls, sd1i=PitchMeanSchizoSD, sd2i=PitchMeanControlsSD, data = data2)
+
+res_mean2 <- rma(yi, vi, data = PitchRange2, slab=Article)
+summary(res_mean2)
+forest(res_mean2)
+
+
+PitchRangeSD2=escalc('SMD', n1i=SampleSizeSchizo, n2i=SampleSizeContros, m1i=PitchSDSchizo, m2i=PitchSDControls, sd1i=PitchSDSchizoSD, sd2i=PitchSDControlsSD, data = data2)
+
+res_sd2 <- rma(yi, vi, data = PitchRangeSD2, slab=Article)
+summary(res_sd2)
+forest(res_sd2)
 ```
 3. Assess the quality of the literature: report and comment on heterogeneity of the studies (tau, I2), on publication bias (funnel plot), and on influential studies.
 ```{r}
+#funnel plot on meta-analysis with assignment 3 - sd
+fplot_sd=funnel(res_sd2, main = "Random-Effects Model", xlab = "Standardized Mean Difference") 
+inf_sd <- influence(res_sd2) 
+print(inf_sd) 
+plot(inf_sd)
+ranktest(res_sd2)
+
+
+#funnel plot on meta-analysis with assignment 3 - mean
+fplot_mean=funnel(res_mean2, main = "Random-Effects Model", xlab = "Standardized Mean Difference") 
+inf_mean <- influence(res_mean2) 
+print(inf_mean) 
+plot(inf_mean)
+ranktest(res_mean2)
 
 ```
 ## Tips on the process to follow:
